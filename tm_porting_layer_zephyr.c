@@ -40,23 +40,23 @@
 /* Include necessary files.  */
 
 #include    <stdlib.h>
-#include    <kernel.h>
-#include    <shell/shell.h>
-#include    <app_memory/app_memdomain.h>
-#include    <misc/libc-hooks.h>
-#include    <arch/arm/cortex_m/cmsis.h>
+#include    <zephyr/kernel.h>
+#include    <zephyr/shell/shell.h>
+#include    <zephyr/app_memory/app_memdomain.h>
+#include    <zephyr/sys/libc-hooks.h>
+#include    <zephyr/arch/arm/aarch32/cortex_m/cmsis.h>
 #include    "tm_api.h"
 
 LOG_MODULE_REGISTER(thread_metric);
 
 static void tm_thread_task(intptr_t exinf);
 
-K_THREAD_DEFINE(TM_TASK_0, 512/*STACKSIZE*/, tm_thread_task, 0, NULL, NULL, 1, K_USER, K_FOREVER);
-K_THREAD_DEFINE(TM_TASK_1, 512/*STACKSIZE*/, tm_thread_task, 1, NULL, NULL, 1, K_USER, K_FOREVER);
-K_THREAD_DEFINE(TM_TASK_2, 512/*STACKSIZE*/, tm_thread_task, 2, NULL, NULL, 1, K_USER, K_FOREVER);
-K_THREAD_DEFINE(TM_TASK_3, 512/*STACKSIZE*/, tm_thread_task, 3, NULL, NULL, 1, K_USER, K_FOREVER);
-K_THREAD_DEFINE(TM_TASK_4, 512/*STACKSIZE*/, tm_thread_task, 4, NULL, NULL, 1, K_USER, K_FOREVER);
-K_THREAD_DEFINE(TM_TASK_5, 512/*STACKSIZE*/, tm_thread_task, 5, NULL, NULL, 1, K_USER, K_FOREVER);
+K_THREAD_DEFINE(TM_TASK_0, 512/*STACKSIZE*/, tm_thread_task, 0, NULL, NULL, 1, K_USER, -1);
+K_THREAD_DEFINE(TM_TASK_1, 512/*STACKSIZE*/, tm_thread_task, 1, NULL, NULL, 1, K_USER, -1);
+K_THREAD_DEFINE(TM_TASK_2, 512/*STACKSIZE*/, tm_thread_task, 2, NULL, NULL, 1, K_USER, -1);
+K_THREAD_DEFINE(TM_TASK_3, 512/*STACKSIZE*/, tm_thread_task, 3, NULL, NULL, 1, K_USER, -1);
+K_THREAD_DEFINE(TM_TASK_4, 512/*STACKSIZE*/, tm_thread_task, 4, NULL, NULL, 1, K_USER, -1);
+K_THREAD_DEFINE(TM_TASK_5, 512/*STACKSIZE*/, tm_thread_task, 5, NULL, NULL, 1, K_USER, -1);
 
 K_MSGQ_DEFINE(TM_MSGQ, 16, 1, 4);
 
@@ -131,7 +131,7 @@ void tm_thread_relinquish(void)
    Otherwise, TM_ERROR should be returned.  */
 void tm_thread_sleep(int seconds)
 {
-    k_sleep(seconds * 1000U);
+    k_sleep(K_MSEC(seconds * 1000U));
 }
 
 
@@ -208,225 +208,30 @@ int  tm_semaphore_put_from_isr(int semaphore_id)
 	return TM_SUCCESS;
 }
 
-
-/* This function creates the specified memory pool that can support one or more
-   allocations of 128 bytes.  If successful, the function should
-   return TM_SUCCESS. Otherwise, TM_ERROR should be returned.  */
-int  tm_memory_pool_create(int pool_id)
-{
-	return TM_SUCCESS;
-}
-
-
-/* This function allocates a 128 byte block from the specified memory pool.  
-   If successful, the function should return TM_SUCCESS. Otherwise, TM_ERROR 
-   should be returned.  */
-int  tm_memory_pool_allocate(int pool_id, unsigned char **memory_ptr)
-{
-    *memory_ptr = malloc(128);
-	return TM_SUCCESS;
-}
-
-
-/* This function releases a previously allocated 128 byte block from the specified 
-   memory pool. If successful, the function should return TM_SUCCESS. Otherwise, TM_ERROR 
-   should be returned.  */
-int  tm_memory_pool_deallocate(int pool_id, unsigned char *memory_ptr)
-{
-    free(memory_ptr);
-	return TM_SUCCESS;
-}
-
+#ifdef INTERRUPT_TEST
 void tm_interrupt_raise(void)
 {
-    NVIC->STIR = I2C3_ER_IRQn;
+    // NVIC->STIR = SWI3_EGU3_IRQn;
 }
-
-#define ENABLE_PRINTF
-
-#if defined(CONFIG_ISOTEE_GUEST)
-#define printf LOG_ERR
-#endif
-
-#define main tm_basic_processing_test_main
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_basic_processing_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_basic_processing_array[1024];
-#include "tm_basic_processing_test.c"
-#undef main
-
-#define main tm_cooperative_scheduling_test_main
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_cooperative_thread_0_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_cooperative_thread_1_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_cooperative_thread_2_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_cooperative_thread_3_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_cooperative_thread_4_counter;
-#include "tm_cooperative_scheduling_test.c"
-#undef main
-
-#define main tm_interrupt_preemption_processing_test_main
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_interrupt_preemption_thread_0_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_interrupt_preemption_thread_1_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_interrupt_preemption_handler_counter;
-#include "tm_interrupt_preemption_processing_test.c"
-#undef main
-
-#define main tm_interrupt_processing_test_main
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_interrupt_thread_0_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_interrupt_handler_counter;
-#include "tm_interrupt_processing_test.c"
-#undef main
-
-#define main tm_memory_allocation_test_main
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_memory_allocation_counter;
-#include "tm_memory_allocation_test.c"
-#undef main
-
-#define main tm_message_processing_test_main
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_message_processing_counter;
-extern K_APP_BMEM(part_tm) unsigned long   tm_message_sent[4];
-extern K_APP_BMEM(part_tm) unsigned long   tm_message_received[4];
-#include "tm_message_processing_test.c"
-#undef main
-
-#define main tm_preemptive_scheduling_test_main
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_preemptive_thread_0_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_preemptive_thread_1_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_preemptive_thread_2_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_preemptive_thread_3_counter;
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_preemptive_thread_4_counter;
-#include "tm_preemptive_scheduling_test.c"
-#undef main
-
-#define main tm_synchronization_processing_test_main
-extern K_APP_BMEM(part_tm) volatile unsigned long   tm_synchronization_processing_counter;
-#include "tm_synchronization_processing_test.c"
-#undef main
-
-K_APP_BMEM(part_tm) static void *test_interrupt_handler;
 
 void
 tm_interrupt_handler()
 {
 	((void (*)(void)) test_interrupt_handler)();
 }
+#endif
 
-K_APPMEM_PARTITION_DEFINE(part_tm);
-
-K_APP_DMEM(part_tm) static char tm_main_task_input = '-';
-
-struct k_mem_domain dom_tm;
-
+#if defined(TEST_COOPERATIVE)
+    #include "tm_cooperative_scheduling_test.c"
+#elif defined(TEST_MESSAGE)
+    #include "tm_message_processing_test.c"
+#endif
 void
 tm_main_task(intptr_t exinf)
 {
 	printf("Thread-Metric Test Suite starts.\n");
-
-	switch (tm_main_task_input) {
-	case '1':
-		printf("START: Basic Processing Test\n");
-		tm_basic_processing_test_main();
-		break;
-
-	case '2':
-		printf("START: Cooperative Scheduling Test\n");
-		tm_cooperative_scheduling_test_main();
-		break;
-
-	case '3':
-		printf("START: Preemptive Scheduling Test\n");
-		tm_preemptive_scheduling_test_main();
-		break;
-
-	case '4':
-		printf("START: Interrupt Processing Test\n");
-		test_interrupt_handler = tm_interrupt_processing_handler;
-		tm_interrupt_processing_test_main();
-		break;
-
-	case '5':
-		printf("START: Interrupt Preemption Processing Test\n");
-		test_interrupt_handler = tm_interrupt_preemption_handler;
-		tm_interrupt_preemption_processing_test_main();
-		break;
-
-	case '6':
-		printf("START: Message Processing Test\n");
-		tm_message_processing_test_main();
-		break;
-
-	case '7':
-		printf("START: Synchronization Processing Test\n");
-		tm_synchronization_processing_test_main();
-		break;
-
-	case '8':
-		printf("START: Memory Allocation Test");
-		tm_memory_allocation_test_main();
-		break;
-
-	default:
-		printf("Unknown command: '%c'.", tm_main_task_input);
-	}
+    _main();
     k_thread_abort(k_current_get());
 }
 
-K_THREAD_DEFINE(TM_MAIN, 512/*STACKSIZE*/, tm_main_task, NULL, NULL, NULL, CONFIG_MAIN_THREAD_PRIORITY, K_USER, K_FOREVER);
-
-int cmd_tm(const struct shell *shell, size_t argc, char **argv) {
-	ARG_UNUSED(argc);
-
-    tm_main_task_input = argv[1][0];
-
-#if !defined(CONFIG_ISOTEE_GUEST)
-    SCB->CCR |= SCB_CCR_USERSETMPEND_Msk;
-#endif
-
-    IRQ_CONNECT(I2C3_ER_IRQn, _EXC_IRQ_DEFAULT_PRIO, tm_interrupt_handler, NULL, 0);
-    irq_enable(I2C3_ER_IRQn);
-
-#if defined(CONFIG_USERSPACE)
-    k_mem_domain_init(&dom_tm, 0, NULL);
-    k_mem_domain_add_partition(&dom_tm, &part_tm);
-    k_mem_domain_add_partition(&dom_tm, &z_malloc_partition);
-    k_mem_domain_add_thread(&dom_tm, TM_MAIN);
-    k_mem_domain_add_thread(&dom_tm, TM_TASK_0);
-    k_mem_domain_add_thread(&dom_tm, TM_TASK_1);
-    k_mem_domain_add_thread(&dom_tm, TM_TASK_2);
-    k_mem_domain_add_thread(&dom_tm, TM_TASK_3);
-    k_mem_domain_add_thread(&dom_tm, TM_TASK_4);
-    k_mem_domain_add_thread(&dom_tm, TM_TASK_5);
-#endif
-
-    k_thread_access_grant(TM_MAIN, TM_TASK_0, TM_TASK_1, TM_TASK_2, TM_TASK_3, TM_TASK_4, TM_TASK_5, &TM_MSGQ, &TM_SEM);
-    k_thread_access_grant(TM_TASK_0, TM_TASK_0, TM_TASK_1, TM_TASK_2, TM_TASK_3, TM_TASK_4, TM_TASK_5, &TM_MSGQ, &TM_SEM);
-    k_thread_access_grant(TM_TASK_1, TM_TASK_0, TM_TASK_1, TM_TASK_2, TM_TASK_3, TM_TASK_4, TM_TASK_5, &TM_MSGQ, &TM_SEM);
-    k_thread_access_grant(TM_TASK_2, TM_TASK_0, TM_TASK_1, TM_TASK_2, TM_TASK_3, TM_TASK_4, TM_TASK_5, &TM_MSGQ, &TM_SEM);
-    k_thread_access_grant(TM_TASK_3, TM_TASK_0, TM_TASK_1, TM_TASK_2, TM_TASK_3, TM_TASK_4, TM_TASK_5, &TM_MSGQ, &TM_SEM);
-    k_thread_access_grant(TM_TASK_4, TM_TASK_0, TM_TASK_1, TM_TASK_2, TM_TASK_3, TM_TASK_4, TM_TASK_5, &TM_MSGQ, &TM_SEM);
-    k_thread_access_grant(TM_TASK_5, TM_TASK_0, TM_TASK_1, TM_TASK_2, TM_TASK_3, TM_TASK_4, TM_TASK_5, &TM_MSGQ, &TM_SEM);
-
-    k_thread_start(TM_MAIN);
-    k_sleep(70000U);
-    k_thread_abort(TM_MAIN);
-    k_thread_abort(TM_TASK_0);
-    k_thread_abort(TM_TASK_1);
-    k_thread_abort(TM_TASK_2);
-    k_thread_abort(TM_TASK_3);
-    k_thread_abort(TM_TASK_4);
-    k_thread_abort(TM_TASK_5);
-    printf("Thread-Metric Test Suite exits.\n");
-
-	return 0;
-}
-
-SHELL_CMD_ARG_REGISTER(tm, NULL,
-"1. Basic Processing Test\n"
-"2. Cooperative Scheduling Test\n"
-"3. Preemptive Scheduling Test\n"
-"4. Interrupt Processing Test\n"
-"5. Interrupt Preemption Processing Test\n"
-"6. Message Processing Test\n"
-"7. Synchronization Processing Test\n"
-"8. Memory Allocation Test\n"
-, cmd_tm, 2, 0);
-
+K_THREAD_DEFINE(TM_MAIN, 512/*STACKSIZE*/, tm_main_task, NULL, NULL, NULL, CONFIG_MAIN_THREAD_PRIORITY, K_USER, 0);

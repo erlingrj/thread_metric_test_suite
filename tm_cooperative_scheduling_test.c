@@ -251,5 +251,6 @@ unsigned long   average;
 #endif
         /* Save the last total.  */
         last_total =  total;
+        return;
     }
 }

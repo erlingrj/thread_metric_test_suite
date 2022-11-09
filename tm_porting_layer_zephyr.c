@@ -221,15 +221,40 @@ tm_interrupt_handler()
 }
 #endif
 
+#ifdef GPIO_DEBUG
+    #include <zephyr/drivers/gpio.h>
+    #define GPIO0 DT_NODELABEL(gpio0)
+    #define NUM_DEBUG_PINS 8
+    gpio_pin_t debug_pins[NUM_DEBUG_PINS] = {17, 18, 19, 20, 22, 23, 24, 25};
+    const struct device *gpio_dev = DEVICE_DT_GET(GPIO0);
+
+    static void gpio_debug_init() {
+        for (int i = 0; i<NUM_DEBUG_PINS; i++) {
+            gpio_pin_configure(gpio_dev, debug_pins[i], GPIO_OUTPUT_INACTIVE);
+        }
+    }
+
+    void gpio_toggle(int pin) {
+        gpio_pin_toggle(gpio_dev,debug_pins[pin]);
+    }
+#endif
+
 #if defined(TEST_COOPERATIVE)
     #include "tm_cooperative_scheduling_test.c"
 #elif defined(TEST_MESSAGE)
     #include "tm_message_processing_test.c"
+#elif defined(TEST_PREEMPTIVE)
+    #include "tm_preemptive_scheduling_test.c"
+#else
+    #error "No test specified"
 #endif
 void
 tm_main_task(intptr_t exinf)
 {
 	printf("Thread-Metric Test Suite starts.\n");
+    #ifdef GPIO_DEBUG
+    gpio_debug_init();
+    #endif
     _main();
     k_thread_abort(k_current_get());
 }

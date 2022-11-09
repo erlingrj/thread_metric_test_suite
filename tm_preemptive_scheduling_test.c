@@ -70,7 +70,7 @@ void            tm_preemptive_scheduling_initialize(void);
 
 /* Define main entry point.  */
 
-int main()
+int _main()
 {
 
     /* Initialize the test.  */
@@ -118,12 +118,18 @@ void  tm_preemptive_thread_0_entry(void)
 
         /* Resume thread 1.  */
         tm_thread_resume(1);
+        #ifdef GPIO_DEBUG
+        gpio_toggle(0);
+        #endif
 
         /* We won't get back here until threads 1, 2, 3, and 4 all execute and
            self-suspend.  */
 
         /* Increment this thread's counter.  */
         tm_preemptive_thread_0_counter++;
+        #ifdef GPIO_DEBUG
+        gpio_toggle(0);
+        #endif
     }
 }
 
@@ -136,6 +142,9 @@ void  tm_preemptive_thread_1_entry(void)
 
         /* Resume thread 2.  */
         tm_thread_resume(2);
+        #ifdef GPIO_DEBUG
+        gpio_toggle(1);
+        #endif
 
         /* We won't get back here until threads 2, 3, and 4 all execute and
            self-suspend.  */
@@ -144,6 +153,9 @@ void  tm_preemptive_thread_1_entry(void)
         tm_preemptive_thread_1_counter++;
 
         /* Suspend self!  */
+        #ifdef GPIO_DEBUG
+        gpio_toggle(1);
+        #endif
         tm_thread_suspend(1);
     }
 }
@@ -157,12 +169,18 @@ void  tm_preemptive_thread_2_entry(void)
 
         /* Resume thread 3.  */
         tm_thread_resume(3);
+        #ifdef GPIO_DEBUG
+        gpio_toggle(2);
+        #endif
 
         /* We won't get back here until threads 3 and 4 execute and
            self-suspend.  */
 
         /* Increment this thread's counter.  */
         tm_preemptive_thread_2_counter++;
+        #ifdef GPIO_DEBUG
+        gpio_toggle(2);
+        #endif
 
         /* Suspend self!  */
         tm_thread_suspend(2);
@@ -179,12 +197,18 @@ void  tm_preemptive_thread_3_entry(void)
 
         /* Resume thread 4.  */
         tm_thread_resume(4);
+        #ifdef GPIO_DEBUG
+        gpio_toggle(3);
+        #endif
 
         /* We won't get back here until thread 4 executes and
            self-suspends.  */
 
         /* Increment this thread's counter.  */
         tm_preemptive_thread_3_counter++;
+        #ifdef GPIO_DEBUG
+        gpio_toggle(3);
+        #endif
 
         /* Suspend self!  */
         tm_thread_suspend(3);
@@ -199,9 +223,15 @@ void  tm_preemptive_thread_4_entry(void)
     while(1)
     {
 
+        #ifdef GPIO_DEBUG
+        gpio_toggle(4);
+        #endif
         /* Increment this thread's counter.  */
         tm_preemptive_thread_4_counter++;
-
+        #ifdef GPIO_DEBUG
+        gpio_toggle(4);
+        #endif
+        
         /* Self suspend thread 4.  */
         tm_thread_suspend(4);
     }
@@ -270,5 +300,6 @@ unsigned long   average;
 #endif
         /* Save the last total.  */
         last_total =  total;
+        return;
     }
 }

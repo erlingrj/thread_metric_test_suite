@@ -69,7 +69,7 @@ void            tm_cooperative_scheduling_initialize(void);
 
 /* Define main entry point.  */
 
-int main()
+int _main()
 {
   tm_cooperative_thread_0_counter = 
   tm_cooperative_thread_1_counter =
@@ -118,9 +118,15 @@ void  tm_cooperative_thread_0_entry(void)
 
         /* Relinquish to all other threads at same priority.  */
         tm_thread_relinquish();
+        #ifdef GPIO_DEBUG
+        gpio_toggle(0);
+        #endif
 
         /* Increment this thread's counter.  */
         tm_cooperative_thread_0_counter++;
+        #ifdef GPIO_DEBUG
+        gpio_toggle(0);
+        #endif
     }
 }
 
@@ -133,9 +139,15 @@ void  tm_cooperative_thread_1_entry(void)
 
         /* Relinquish to all other threads at same priority.  */
         tm_thread_relinquish();
+        #ifdef GPIO_DEBUG
+        gpio_toggle(1);
+        #endif
 
         /* Increment this thread's counter.  */
         tm_cooperative_thread_1_counter++;
+        #ifdef GPIO_DEBUG
+        gpio_toggle(1);
+        #endif
     }
 }
 
@@ -148,9 +160,15 @@ void  tm_cooperative_thread_2_entry(void)
 
         /* Relinquish to all other threads at same priority.  */
         tm_thread_relinquish();
+        #ifdef GPIO_DEBUG
+        gpio_toggle(2);
+        #endif
 
         /* Increment this thread's counter.  */
         tm_cooperative_thread_2_counter++;
+        #ifdef GPIO_DEBUG
+        gpio_toggle(2);
+        #endif
     }
 }
 
@@ -164,9 +182,15 @@ void  tm_cooperative_thread_3_entry(void)
 
         /* Relinquish to all other threads at same priority.  */
         tm_thread_relinquish();
+        #ifdef GPIO_DEBUG
+        gpio_toggle(3);
+        #endif
 
         /* Increment this thread's counter.  */
         tm_cooperative_thread_3_counter++;
+        #ifdef GPIO_DEBUG
+        gpio_toggle(3);
+        #endif
     }
 }
 
@@ -181,8 +205,14 @@ void  tm_cooperative_thread_4_entry(void)
         /* Relinquish to all other threads at same priority.  */
         tm_thread_relinquish();
 
+        #ifdef GPIO_DEBUG
+        gpio_toggle(4);
+        #endif
         /* Increment this thread's counter.  */
         tm_cooperative_thread_4_counter++;
+        #ifdef GPIO_DEBUG
+        gpio_toggle(4);
+        #endif
     }
 }
 

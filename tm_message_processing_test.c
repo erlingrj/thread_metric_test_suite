@@ -107,9 +107,22 @@ void  tm_message_processing_thread_0_entry(void)
     while(1)
     {
 
+        #ifdef GPIO_DEBUG
+        gpio_toggle(0);
+        #endif
+        
+        #ifdef GPIO_DEBUG
+        gpio_toggle(0);
+        #endif
         /* Send a message to the queue.  */
         tm_queue_send(0, tm_message_sent);
 
+        #ifdef GPIO_DEBUG
+        gpio_toggle(0);
+        #endif
+        #ifdef GPIO_DEBUG
+        gpio_toggle(0);
+        #endif
         /* Receive a message from the queue.  */
         tm_queue_receive(0, tm_message_received);
 

@@ -64,7 +64,7 @@ void            tm_message_processing_initialize(void);
 
 /* Define main entry point.  */
 
-int main()
+int _main()
 {
 
     /* Initialize the test.  */
@@ -170,5 +170,6 @@ unsigned long   relative_time;
 #endif
         /* Save the last counter.  */
         last_counter =  tm_message_processing_counter;
+    return;
     }
 }

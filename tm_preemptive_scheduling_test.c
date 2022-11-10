@@ -248,6 +248,7 @@ unsigned long   last_total;
 unsigned long   average;
 
 
+int n_tests=0;
     /* Initialize the last total.  */
     last_total =  0;
 
@@ -262,10 +263,6 @@ unsigned long   average;
 
         /* Increment the relative time.  */
         relative_time =  relative_time + TM_TEST_DURATION;
-#ifdef ENABLE_PRINTF
-        /* Print results to the stdio window.  */
-        printf("**** Thread-Metric Preemptive Scheduling Test **** Relative Time: %lu\n", relative_time);
-#endif
         /* Calculate the total of all the counters.  */
         total =  tm_preemptive_thread_0_counter + tm_preemptive_thread_1_counter + tm_preemptive_thread_2_counter
                     + tm_preemptive_thread_3_counter + tm_preemptive_thread_4_counter;
@@ -296,10 +293,12 @@ unsigned long   average;
         }
 #ifdef ENABLE_PRINTF
         /* Show the time period total.  */
-        printf("Time Period Total:  %lu\n\n", total - last_total);
+        printf("Zephyr:Preemptive Scheduling=%lu\n", total - last_total);
 #endif
         /* Save the last total.  */
         last_total =  total;
-        return;
+        if (++n_tests == N_TESTS) {
+            return;
     }
+}
 }

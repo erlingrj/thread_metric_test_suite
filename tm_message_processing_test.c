@@ -146,7 +146,7 @@ void  tm_message_processing_thread_report(void)
 unsigned long   last_counter;
 unsigned long   relative_time;
 
-
+int n_tests=0;
     /* Initialize the last counter.  */
     last_counter =  0;
 
@@ -161,10 +161,6 @@ unsigned long   relative_time;
 
         /* Increment the relative time.  */
         relative_time =  relative_time + TM_TEST_DURATION;
-#ifdef ENABLE_PRINTF
-        /* Print results to the stdio window.  */
-        printf("**** Thread-Metric Message Processing Test **** Relative Time: %lu\n", relative_time);
-#endif
         /* See if there are any errors.  */
         if (tm_message_processing_counter == last_counter)
         {
@@ -179,10 +175,13 @@ unsigned long   relative_time;
         }
 #ifdef ENABLE_PRINTF
         /* Show the time period total.  */
-        printf("Time Period Total:  %lu\n\n", tm_message_processing_counter - last_counter);
+        printf("Zephyr:Message Processing=%lu\n", tm_message_processing_counter - last_counter);
 #endif
         /* Save the last counter.  */
         last_counter =  tm_message_processing_counter;
-    return;
+        if (++n_tests == N_TESTS) {
+            return;
     }
+}
+
 }

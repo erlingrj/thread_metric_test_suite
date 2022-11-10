@@ -159,6 +159,7 @@ unsigned long   total;
 unsigned long   last_total;
 unsigned long   relative_time;
 unsigned long   average;
+int n_tests=0;
 
 
     /* Initialize the last total.  */
@@ -177,7 +178,6 @@ unsigned long   average;
         relative_time =  relative_time + TM_TEST_DURATION;
 #ifdef ENABLE_PRINTF
         /* Print results to the stdio window.  */
-        printf("**** Thread-Metric Interrupt Processing Test **** Relative Time: %lu\n", relative_time);
 #endif
         /* Calculate the total of all the counters.  */
         total =  tm_interrupt_thread_0_counter + tm_interrupt_handler_counter;
@@ -202,10 +202,12 @@ unsigned long   average;
         }
 #ifdef ENABLE_PRINTF
         /* Show the total interrupts for the time period.  */
-        printf("Time Period Total:  %lu\n\n", tm_interrupt_handler_counter - last_total);
+        printf("Zephyr:Interrupt Processing=%lu\n", tm_interrupt_handler_counter - last_total);
 #endif
-        /* Save the last total number of interrup */
-        total =  tm_interrupt_handler_counter; 
-        return;
+        tm_interrupt_handler_counter=0;
+        tm_interrupt_thread_0_counter=0;
+        if (++n_tests == N_TESTS) {
+            return;
+        }
     }
 }

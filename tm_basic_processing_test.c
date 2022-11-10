@@ -70,7 +70,7 @@ void            tm_basic_processing_initialize(void);
 
 /* Define main entry point.  */
 
-void main()
+void _main()
 {
 
     /* Initialize the test.  */
@@ -136,7 +136,7 @@ void  tm_basic_processing_thread_report(void)
 
 unsigned long   last_counter;
 unsigned long   relative_time;
-
+int n_tests=0;
 
     /* Initialize the last counter.  */
     last_counter =  0;
@@ -155,8 +155,6 @@ unsigned long   relative_time;
 
 #ifdef ENABLE_PRINTF
 
-        /* Print results to the stdio window.  */
-        printf("**** Thread-Metric Basic Single Thread Processing Test **** Relative Time: %lu\n", relative_time);
 
         /* See if there are any errors.  */
         if (tm_basic_processing_counter == last_counter)
@@ -166,10 +164,14 @@ unsigned long   relative_time;
         }
 
         /* Show the time period total.  */
-        printf("Time Period Total:  %lu\n\n", tm_basic_processing_counter - last_counter);
+        printf("Zephyr:Basic Processing=%lu\n", tm_basic_processing_counter - last_counter);
 #endif
 
         /* Save the last counter.  */
         last_counter =  tm_basic_processing_counter;
+
+        if (++n_tests == N_TESTS) {
+            return;
+        }
     }
 }

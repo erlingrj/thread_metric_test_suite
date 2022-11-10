@@ -239,6 +239,10 @@ void tm_interrupt_raise(void)
     #include "tm_message_processing_test.c"
 #elif defined(TEST_PREEMPTIVE)
     #include "tm_preemptive_scheduling_test.c"
+#elif defined(TEST_SYNC)
+    #include "tm_synchronization_processing_test.c"
+#elif defined(TEST_BASIC)
+    #include "tm_basic_processing_test.c"
 #elif defined(TEST_IRQ)
     #define IRQs
     #include "tm_interrupt_processing_test.c"

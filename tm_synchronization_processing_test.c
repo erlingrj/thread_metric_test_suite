@@ -62,7 +62,7 @@ void            tm_synchronization_processing_initialize(void);
 
 /* Define main entry point.  */
 
-int main()
+int _main()
 {
 
     /* Initialize the test.  */
@@ -123,6 +123,7 @@ void  tm_synchronization_processing_thread_report(void)
 
 unsigned long   last_counter;
 unsigned long   relative_time;
+int n_tests=0;
 
 
     /* Initialize the last counter.  */
@@ -141,7 +142,6 @@ unsigned long   relative_time;
         relative_time =  relative_time + TM_TEST_DURATION;
 #ifdef ENABLE_PRINTF
         /* Print results to the stdio window.  */
-        printf("**** Thread-Metric Synchronization Processing Test **** Relative Time: %lu\n", relative_time);
 #endif
         /* See if there are any errors.  */
         if (tm_synchronization_processing_counter == last_counter)
@@ -157,9 +157,13 @@ unsigned long   relative_time;
         }
 #ifdef ENABLE_PRINTF
         /* Show the time period total.  */
-        printf("Time Period Total:  %lu\n\n", tm_synchronization_processing_counter - last_counter);
+        printf("Zephyr:Synchronization Processing=%lu\n", tm_synchronization_processing_counter - last_counter);
 #endif
         /* Save the last counter.  */
         last_counter =  tm_synchronization_processing_counter;
+
+        if (++n_tests == N_TESTS) {
+            return;
+        }
     }
 }

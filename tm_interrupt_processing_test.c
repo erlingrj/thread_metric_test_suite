@@ -69,7 +69,7 @@ void            tm_interrupt_processing_initialize(void);
 
 /* Define main entry point.  */
 
-int main()
+int _main()
 {
 
     /* Initialize the test.  */
@@ -140,7 +140,7 @@ int status;
 }
 
 
-void  tm_interrupt_processing_handler(void)
+void tm_interrupt_handler(void)
 {
 
     tm_interrupt_handler_counter++;     /* Increment the interrupt count.  */
@@ -204,7 +204,8 @@ unsigned long   average;
         /* Show the total interrupts for the time period.  */
         printf("Time Period Total:  %lu\n\n", tm_interrupt_handler_counter - last_total);
 #endif
-        /* Save the last total number of interrupts.  */
-        last_total =  tm_interrupt_handler_counter;
+        /* Save the last total number of interrup */
+        total =  tm_interrupt_handler_counter; 
+        return;
     }
 }

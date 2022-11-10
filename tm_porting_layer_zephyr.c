@@ -208,16 +208,10 @@ int  tm_semaphore_put_from_isr(int semaphore_id)
 	return TM_SUCCESS;
 }
 
-#ifdef INTERRUPT_TEST
+#ifdef TEST_IRQ
 void tm_interrupt_raise(void)
 {
-    // NVIC->STIR = SWI3_EGU3_IRQn;
-}
-
-void
-tm_interrupt_handler()
-{
-	((void (*)(void)) test_interrupt_handler)();
+    NVIC->STIR = SWI3_EGU3_IRQn;
 }
 #endif
 
@@ -245,12 +239,19 @@ tm_interrupt_handler()
     #include "tm_message_processing_test.c"
 #elif defined(TEST_PREEMPTIVE)
     #include "tm_preemptive_scheduling_test.c"
+#elif defined(TEST_IRQ)
+    #define IRQs
+    #include "tm_interrupt_processing_test.c"
 #else
     #error "No test specified"
 #endif
 void
 tm_main_task(intptr_t exinf)
-{
+{   
+#ifdef IRQs
+    IRQ_CONNECT(SWI3_EGU3_IRQn, IRQ_PRIO_LOWEST, tm_interrupt_handler, NULL, 0);
+    irq_enable(SWI3_EGU3_IRQn);
+#endif
 	printf("Thread-Metric Test Suite starts.\n");
     #ifdef GPIO_DEBUG
     gpio_debug_init();
